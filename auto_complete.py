@@ -1,37 +1,22 @@
 import glob
 
 
-data = {}
+
 chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
          's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ']
 
 
-def data_from_file(file):
-    with open(file) as f:
-        sentences = f.readlines()
-    f.close()
-    return [x.strip() for x in sentences]
 
 
 big_data = list()
-txt_files = glob.glob("python-3.8.4-docs-text/python-3.8.4-docs-text/*.txt")
-for file in txt_files:
-    big_data += data_from_file(file)
 
 
-def init_data():
-    for index, sentence in enumerate(big_data):
-        length = len(sentence)
-        for i in range(length):
-            for j in range(i, length):
-                if not data.get(sentence[i:j + 1]):
-                    data[sentence[i:j + 1]] = set()
-                    data[sentence[i:j + 1]].add(index)
-                else:
-                    data[sentence[i:j + 1]].add(index)
 
 
-def delete(substring):
+
+
+
+def delete(substring, data):
     length = len(substring)
 
     for i in range(length):
@@ -43,7 +28,7 @@ def delete(substring):
                 return big_data[index_sub_str]
 
 
-def replace(substring):
+def replace(substring, data):
     length = len(substring)
 
     for i in range(length):
@@ -56,7 +41,7 @@ def replace(substring):
                     return big_data[index]
 
 
-def add_letter(substring):
+def add_letter(substring, data):
     length = len(substring)
 
     for i in range(length):
@@ -69,7 +54,7 @@ def add_letter(substring):
                     return big_data[index]
 
 
-def get_best_k_completions(substring):
+def get_best_k_completions(substring, data):
     new_substring = add_letter(substring)
     if new_substring:
         return new_substring
@@ -78,13 +63,45 @@ def get_best_k_completions(substring):
         return big_data[list(data[substring])[0]]
     return ""
 
-# @dataclass
-# class AutoCompleteData:
-#         def __init__(self, completed_sentence, source_text, offset, score):
-#             self.name = name
-#             self.age = age
-#     completed_sentence: str  source_text: str     offset: int score: int
-#
+
+ class Init:
+        def __init__(self):
+            self.sub_str_data = {}
+
+
+        def data_from_file(self, file_name):
+            with open(file_name) as f:
+                sentences = f.readlines()
+            return [x.strip() for x in sentences]
+
+
+        def init_data(self):
+            txt_files = glob.glob("python-3.8.4-docs-text/python-3.8.4-docs-text/*.txt")
+
+            for file in txt_files:
+                big_data += self.data_from_file(file)
+
+            for index, sentence in enumerate(big_data):
+                length = len(sentence)
+                for i in range(length):
+                    for j in range(i, length):
+                        if not self.sub_str_data.get(sentence[i:j + 1]):
+                            data[sentence[i:j + 1]] = set()
+                            data[sentence[i:j + 1]].add(index)
+                        else:
+                            data[sentence[i:j + 1]].add(index)
+
+
+
+
+class AutoCompleteData:
+         def __init__(self, completed_sentence, source_text, offset, score):
+             self.completed_sentence = completed_sentence
+             self.source_text =  source_text
+             self.offset =  offset
+             self.score = score
+
+
 
 init_data()
 
