@@ -1,10 +1,22 @@
-the_file = open("copyright.txt")
+import glob
 
 
-big_data = the_file.read().split("\n")
 data = {}
 chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
          's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ']
+
+
+def data_from_file(file):
+    with open(file) as f:
+        sentences = f.readlines()
+    f.close()
+    return [x.strip() for x in sentences]
+
+
+big_data = list()
+txt_files = glob.glob("python-3.8.4-docs-text/python-3.8.4-docs-text/*.txt")
+for file in txt_files:
+    big_data += data_from_file(file)
 
 
 def init_data():
@@ -66,11 +78,17 @@ def get_best_k_completions(substring):
         return big_data[list(data[substring])[0]]
     return ""
 
-
-
+# @dataclass
+# class AutoCompleteData:
+#         def __init__(self, completed_sentence, source_text, offset, score):
+#             self.name = name
+#             self.age = age
+#     completed_sentence: str  source_text: str     offset: int score: int
+#
 
 init_data()
-print(get_best_k_completions("nie"))
+
+print(get_best_k_completions("Hello"))
 
 
 
