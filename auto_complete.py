@@ -124,28 +124,38 @@ chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', '
          's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ']
 
 
-def get_score_of_delete(input_sub, new_sub):
-    score = 0
-    flag = 10
-    for i in range(len(input_sub)):
-        if input_sub[i] != new_sub[i]:
-            score -= 2 if i < 4 else flag
-            flag += 2 if i < 4 else 0
-        else:
-            score += 2
 
-def get_score_of_add_letter(input_sub, new_sub):
-    score = 0
-    flag = 10
-    for i in range(len(new_sub)):
-        if input_sub[i] != new_sub[i]:
-                score -= 2 if i < 4 else flag
-                flag -= 2 if i < 4 else 0
-        else:
-            score+=2
+def get_score_of_delete(input_string, after_changed):
+    num_for_reduce = 10
+    len_change = len(after_changed)
+    for i in range(len_change):
+        if not input_string[i] == after_changed[i]:
+            return len_change * 2 - num_for_reduce
+        num_for_reduce = num_for_reduce-2 if i < 4 else 1
+
+    return len_change * 2 - num_for_reduce
 
 
+def get_score_of_add_letter(input_string, after_changed):
+    num_for_reduce = 10
+    len_input = len(input_string)
+    for i in range(len_input):
+        if not input_string[i] == after_changed[i]:
+            return len_input * 2 - num_for_reduce
+        num_for_reduce = num_for_reduce - 2 if i < 4 else 1
 
+    return len_input * 2 - num_for_reduce
+
+
+def get_score_of_replace_letter(input_string, after_changed):
+    num_for_reduce = 5
+    len_input = len(input_string)
+    for i in range(len_input):
+        if not input_string[i] == after_changed[i]:
+            return (len_input-1) * 2 - num_for_reduce
+        num_for_reduce = num_for_reduce - 1 if i < 4 else 2
+
+    return (len_input-1) * 2 - num_for_reduce
 
 
 
