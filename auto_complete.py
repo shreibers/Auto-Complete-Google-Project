@@ -1,128 +1,11 @@
-# import glob
-#
-#
-#
-# chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
-#          's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ']
-#
-#
-#
-#
-# big_data = list()
-#
-#
-#
-#
-#
-#
-#
-# def delete(substring, data):
-#     length = len(substring)
-#
-#     for i in range(length):
-#         intersection_set = set()
-#         if data.get(substring[:i+1]) and data.get(substring[i+2:length]):
-#             intersection_set = data[substring[:i+1]].intersection(data[substring[i+2:length]])
-#         for index_sub_str in intersection_set:
-#             if substring[:i+1] + substring[i+2:length] in big_data[index_sub_str]:
-#                 return big_data[index_sub_str]
-#
-#
-# def replace(substring, data):
-#     length = len(substring)
-#
-#     for i in range(length):
-#         intersection_set = set()
-#         if data.get(substring[:i + 1]) and data.get(substring[i + 2:length]):
-#             intersection_set = data[substring[:i + 1]].intersection(data[substring[i + 2:length]])
-#         for index in intersection_set:
-#             for char in chars:
-#                 if substring[:i + 1] + char + substring[i + 2:length] in big_data[index]:
-#                     return big_data[index]
-#
-#
-# def add_letter(substring, data):
-#     length = len(substring)
-#
-#     for i in range(length):
-#         intersection_set = set()
-#         if data.get(substring[:i]) and data.get(substring[i:length]):
-#             intersection_set = data[substring[:i]].intersection(data[substring[i:length]])
-#         for index in intersection_set:
-#             for char in chars:
-#                 if substring[:i] + char + substring[i:length] in big_data[index]:
-#                     return big_data[index]
-#
-#
-# def get_best_k_completions(substring, data):
-#     new_substring = add_letter(substring)
-#     if new_substring:
-#         return new_substring
-#
-#     if data.get(substring):
-#         return big_data[list(data[substring])[0]]
-#     return ""
-#
-#
-#  class Init:
-#         def __init__(self):
-#             self.sub_str_data = {}
-#
-#
-#         def data_from_file(self, file_name):
-#             with open(file_name) as f:
-#                 sentences = f.readlines()
-#             return [x.strip() for x in sentences]
-#
-#
-#         def init_data(self):
-#             txt_files = glob.glob("python-3.8.4-docs-text/python-3.8.4-docs-text/*.txt")
-#
-#             for file in txt_files:
-#                 big_data += self.data_from_file(file)
-#
-#             for index, sentence in enumerate(big_data):
-#                 length = len(sentence)
-#                 for i in range(length):
-#                     for j in range(i, length):
-#                         if not self.sub_str_data.get(sentence[i:j + 1]):
-#                             data[sentence[i:j + 1]] = set()
-#                             data[sentence[i:j + 1]].add(index)
-#                         else:
-#                             data[sentence[i:j + 1]].add(index)
-#
-#
-#
-#
-# class AutoCompleteData:
-#          def __init__(self, completed_sentence, source_text, offset, score):
-#              self.completed_sentence = completed_sentence
-#              self.source_text =  source_text
-#              self.offset =  offset
-#              self.score = score
-#
-#
-# Init data
-# init_data()
-#
-# print(get_best_k_completions("Hello"))
-#
-#
-#
 
-import glob
-def data_from_file(file):
-    with open(file) as the_file:
-        sentences = the_file.readlines()
-    return [x.strip() for x in sentences]
-list_data = list()
-# txt_files = glob.glob("python-3.8.4-docs-text/python-3.8.4-docs-text/*.txt")
-# for file in txt_files:
-list_data += data_from_file("copyright.txt")
-data = {}
-chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
-         's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ']
+from auto_compliete_data import AutoCompleteData
+from init_data import Init
 
+print("loading the files and preparing the system...")
+
+init = Init()
+init.init_data()
 
 
 def get_score_of_delete(input_string, after_changed):
@@ -159,90 +42,80 @@ def get_score_of_replace_letter(input_string, after_changed):
 
 
 
+def with_delete(substring, num_to_search):
+    res = {}
+    len_ = len(substring)
+    flag = num_to_search
+    for j in range(num_to_search):
 
-def init_data():
-    for index, sentence in enumerate(list_data):
-        len_ = len(sentence)
         for i in range(len_):
-            for j in range(i, len_):
-                if not data.get(sentence[i:j + 1]):
-                    data[sentence[i:j + 1]] = set()
-                    data[sentence[i:j + 1]].add(index)
-                else:
-                    data[sentence[i:j + 1]].add(index)
+            substring_for_search = init.data.get(substring.replace(substring[i], "", 1))
+            for index in substring_for_search:
+                if len(res.keys()) == num_to_search:
+                    return res
+                if (substring[:i + 1] + substring[i + 2:len_] in init.list_data[index]) and flag:
+                    res[init.list_data[index]] = get_score_of_delete(substring, substring[:i + 1] + substring[i + 2:len_])
+                    flag -= 1
+
+    return res
 
 
-def with_delete(substring):
+def with_replace(substring, num_to_search):
+    res = {}
     len_ = len(substring)
-    for i in range(len_):
-        sub_cuts_set = set()
-        if data.get(substring[:i+1]) and data.get(substring[i+2:len_]):
-            sub_cuts_set = data.get(substring[:i+1]).intersection(data.get(substring[i+2:len_]))
-        for index in sub_cuts_set:
-            if substring[:i+1]+substring[i+2:len_] in list_data[index]:
-                return list_data[index]
-    return ""
+    flag = num_to_search
+    for j in range(num_to_search):
+        for i in range(len_):
+            sub_cuts_set = set()
+            if init.data.get(substring[:i + 1]) and init.data.get(substring[i + 2:len_]):
+                sub_cuts_set = init.data.get(substring[:i + 1]).intersection(init.data.get(substring[i + 2:len_]))
 
+            for index in sub_cuts_set:
+                if (substring[:i + 1] + substring[i + 2:len_] in init.list_data[index]) and flag:
+                    res[init.list_data[index]] = get_score_of_delete(substring, substring[:i + 1] + substring[i + 2:len_])
+                    flag -= 1
 
-def with_replace(substring):
-    len_ = len(substring)
-    for i in range(len_):
-        sub_cuts_set = set()
-        if data.get(substring[:i + 1]) and data.get(substring[i + 2:len_]):
-            sub_cuts_set = data.get(substring[:i + 1]).intersection(data.get(substring[i + 2:len_]))
-        for index in sub_cuts_set:
-            for char in chars:
-                if substring[:i + 1] + char + substring[i + 2:len_] in list_data[index]:
-                    return list_data[index]
-    return ""
+    return res
 
 
 def with_add(substring):
     len_ = len(substring)
     for i in range(len_):
         sub_cuts_set = set()
-        if data.get(substring[:i]) and data.get(substring[i:len_]):
-            sub_cuts_set = data.get(substring[:i]).intersection(data.get(substring[i:len_]))
+        if init.data.get(substring[:i]) and init.data.get(substring[i:len_]):
+            sub_cuts_set = init.data.get(substring[:i]).intersection(init.data.get(substring[i:len_]))
         for index in sub_cuts_set:
-            for char in chars:
-                if substring[:i] + char + substring[i:len_] in list_data[index]:
-                    return list_data[index]
+            for char in range(ord('a'), ord('z') + 1):
+                if substring[:i] + char + substring[i:len_] in init.list_data[index]:
+                    return init.list_data[index]
     return ""
 
 
 def search(substring):
     max_scores = {}
     indexes = [5]
-    if data.get(substring):
-        if len(list(data[substring])) <= 5:
-            indexes = list(data[substring])
-        else:
-            indexes = list(data[substring])[:5]
+    if init.data.get(substring):
+        indexes = list(init.data[substring]) if len(init.data[substring]) <= 5 else list(init.data[substring])[:5]
     max_score = len(substring)
     len_ = len(indexes)
     for i in range(len_):
-        max_scores[list_data[indexes[i]]] = max_score*2
+        max_scores[init.list_data[indexes[i]]] = max_score*2
 
     if len(max_scores) < 5:
+        max_scores = with_delete(substring, 5-len(max_scores))
 
     return sorted(max_scores.keys())
 
 
-    # res = with_delete(substring)
-    # if res:
-    #     return res
-    # res = with_replace(substring)
-    # if res:
-    #     return res
-    # res = with_add(substring)
-    # if res:
-    #     return res
-    # if data.get(substring):
-    #     return list_data[list(data[substring])[0]]
-    # return ""
+suggestions = search(input("The system is ready. Enter your text:\n"))
 
-# def get_score():
+print("Here are 5 suggestions")
+
+for i in range(5):
+    print(f'{i}. {suggestions[i]}')
 
 
-init_data()
-print(search("All"))
+
+
+
+
