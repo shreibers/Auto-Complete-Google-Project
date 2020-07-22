@@ -8,27 +8,6 @@ init = Init()
 init.init_data()
 
 
-def get_score_of_delete(input_string, after_changed):
-    num_for_reduce = 10
-    len_change = len(after_changed)
-    for i in range(len_change):
-        if not input_string[i] == after_changed[i]:
-            return len_change * 2 - num_for_reduce
-        num_for_reduce = num_for_reduce-2 if i < 4 else 1
-
-    return len_change * 2 - num_for_reduce
-
-
-def get_score_of_add_letter(input_string, after_changed):
-    num_for_reduce = 10
-    len_input = len(input_string)
-    for i in range(len_input):
-        if not input_string[i] == after_changed[i]:
-            return len_input * 2 - num_for_reduce
-        num_for_reduce = num_for_reduce - 2 if i < 4 else 1
-
-    return len_input * 2 - num_for_reduce
-
 
 def get_score_of_replace_letter(input_string, after_changed):
     num_for_reduce = 5
@@ -41,55 +20,78 @@ def get_score_of_replace_letter(input_string, after_changed):
     return (len_input-1) * 2 - num_for_reduce
 
 
-
 def with_delete(substring, num_to_search):
     res = {}
     len_ = len(substring)
-    flag = num_to_search
-    for j in range(num_to_search):
 
-        for i in range(len_):
-            substring_for_search = init.data.get(substring.replace(substring[i], "", 1))
-            for index in substring_for_search:
+    for i in range(len_):
+        index_substring_for_search = init.data.get(substring.replace(substring[i], "", 1))
+        if index_substring_for_search:
+            for index in index_substring_for_search:
+                score = (len_ - 1) * 2 - (10 - 2 * index) if i < 4 else (len_ - 1) * 2 - 2
+                res[init.list_data[index]] = score
                 if len(res.keys()) == num_to_search:
-                    return res
-                if (substring[:i + 1] + substring[i + 2:len_] in init.list_data[index]) and flag:
-                    res[init.list_data[index]] = get_score_of_delete(substring, substring[:i + 1] + substring[i + 2:len_])
-                    flag -= 1
+                    min_score = min(res.values())
+                    if min_score < score:
+                        for key, value in res.items():
+                            if value == min_score:
+                                del res[key]
+                                break
 
+                    res[init.list_data[index]] = score
     return res
 
 
 def with_replace(substring, num_to_search):
     res = {}
     len_ = len(substring)
-    flag = num_to_search
-    for j in range(num_to_search):
-        for i in range(len_):
-            sub_cuts_set = set()
-            if init.data.get(substring[:i + 1]) and init.data.get(substring[i + 2:len_]):
-                sub_cuts_set = init.data.get(substring[:i + 1]).intersection(init.data.get(substring[i + 2:len_]))
 
-            for index in sub_cuts_set:
-                if (substring[:i + 1] + substring[i + 2:len_] in init.list_data[index]) and flag:
-                    res[init.list_data[index]] = get_score_of_delete(substring, substring[:i + 1] + substring[i + 2:len_])
-                    flag -= 1
+    for i in range(len_):
+        for char in range(ord('a'), ord('z') + 1):
+            index_substring_for_search = init.data.get(substring.replace(substring[i], chr(char), 1))
+            if index_substring_for_search:
+                for index in index_substring_for_search:
+                    score = (len_-1)*2 - (5 - index) if i < 4 else (len_-1)*2 - 1
+                    res[init.list_data[index]] = score
+                    if len(res.keys()) == num_to_search:
+                        min_score = min(res.values())
+                        if min_score < score:
+                            for key, value in res.items():
+                                if value == min_score:
+                                    del res[key]
+                                    break
 
+                        res[init.list_data[index]] = score
+
+                    else:
+                        res[init.list_data[index]] = score
     return res
 
 
-def with_add(substring):
+def with_add(substring, num_to_search):
+    res = {}
     len_ = len(substring)
-    for i in range(len_):
-        sub_cuts_set = set()
-        if init.data.get(substring[:i]) and init.data.get(substring[i:len_]):
-            sub_cuts_set = init.data.get(substring[:i]).intersection(init.data.get(substring[i:len_]))
-        for index in sub_cuts_set:
-            for char in range(ord('a'), ord('z') + 1):
-                if substring[:i] + char + substring[i:len_] in init.list_data[index]:
-                    return init.list_data[index]
-    return ""
 
+    for i in range(len_+1):
+        for char in range(ord('a'), ord('z') + 1):
+            index_substring_for_search = init.data.get(substring[:i] + chr(char) + substring[i:])
+            if index_substring_for_search:
+                for index in index_substring_for_search:
+                    score = len_ * 2 - (10 - 2 * index) if i < 4 else (len_ - 1) * 2 - 2
+                    res[init.list_data[index]] = score
+                    if len(res.keys()) == num_to_search:
+                        min_score = min(res.values())
+                        if min_score < score:
+                            for key, value in res.items():
+                                if value == min_score:
+                                    del res[key]
+                                    break
+
+                        res[init.list_data[index]] = score
+
+                    else:
+                        res[init.list_data[index]] = score
+    return res
 
 def search(substring):
     max_scores = {}
@@ -102,17 +104,25 @@ def search(substring):
         max_scores[init.list_data[indexes[i]]] = max_score*2
 
     if len(max_scores) < 5:
-        max_scores = with_delete(substring, 5-len(max_scores))
+        max_scores = with_replace(substring, 5-len(max_scores))
 
     return sorted(max_scores.keys())
 
 
-suggestions = search(input("The system is ready. Enter your text:\n"))
+while 1:
+    input_ = input("The system is ready. Enter your text:\n")
+    if input_ == '#':
+        break
+    else:
 
-print("Here are 5 suggestions")
+        print(search(input_))
 
-for i in range(5):
-    print(f'{i}. {suggestions[i]}')
+
+
+
+# print("Here are 5 suggestions")
+# for i in range(1):
+#      print(f'{i}. {suggestions[i]}')
 
 
 
