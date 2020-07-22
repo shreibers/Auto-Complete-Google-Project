@@ -4,3 +4,4 @@ class AutoCompleteData:
         self.source_text = source_text
         self.offset = offset
         self.score = score
+
