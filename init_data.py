@@ -17,7 +17,8 @@ class Init:
         # for file in txt_files:
         #     self.list_data += self.data_from_file(file)
         # self.list_data += self.data_from_file("copyright.txt")
-        self.list_data = ["Hello world", "Hello Ruti", "Sari", "World kuyti", "Ruti&Sari" ]
+        print("loading the files and preparing the system...")
+        self.list_data = self.data_from_file("copyright.txt")
         for index, sentence in enumerate(self.list_data):
             length = len(sentence)
             for i in range(length):
@@ -27,6 +28,9 @@ class Init:
                         self.data[sentence[i:j + 1]].add(index)
                     else:
                         self.data[sentence[i:j + 1]].add(index)
+
+
+
 
 
 
