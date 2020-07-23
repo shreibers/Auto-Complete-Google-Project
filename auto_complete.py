@@ -54,7 +54,7 @@ def with_delete(substring, num_to_search):
     len_ = len(substring)
 
     for i in range(len_):
-        index_substring_for_search = data.get(substring.replace(substring[i], "", 1))
+        index_substring_for_search = data.get(substring[:i]+"" + substring[i+1:])
 
         if index_substring_for_search:
             for index in index_substring_for_search:
@@ -73,7 +73,7 @@ def with_replace(substring, num_to_search):
 
     for i in range(len_):
         for char in range(ord('a'), ord('z') + 1):
-            index_substring_for_search = data.get(substring.replace(substring[i], chr(char), 1))
+            index_substring_for_search = data.get(substring[:i] + chr(char) + substring[i+1:])
 
             if index_substring_for_search:
 
@@ -125,7 +125,7 @@ def get_completions_with_changes(substring, num_to_search):
 
     res = with_replace(substring, num_to_search)
     res.update(with_add(substring, num_to_search))
-    res.update(with_replace(substring, num_to_search))
+    res.update(with_delete(substring, num_to_search))
 
     return res
 
@@ -142,7 +142,7 @@ def get_best_k_completions(substring):
     return sorted(best_k_completions.keys())
 
 init_data()
-print(get_best_k_completions(input()))
+print(get_best_k_completions("aCopyright"))
 # while 1:
 #     input_ = input("The system is ready. Enter your text:\n")
 #     while input_ != "":
