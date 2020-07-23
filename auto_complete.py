@@ -8,6 +8,7 @@ AMOUNT_COMPLETIONS = 5
 init = Init()
 init.init_data()
 
+
 def replace_min_score(res, score, index):
     min_score = min(res.values())
     if min_score < score:
@@ -88,8 +89,7 @@ def get_completions_without_changes(substring):
     indexes = []
     max_score = 0
     if init.data.get(substring):
-        indexes = list(init.data[substring]) if len(init.data[substring]) <= AMOUNT_COMPLETIONS else \
-            list(init.data[substring])[:AMOUNT_COMPLETIONS]
+        indexes = list(init.data[substring])
         max_score = len(substring)*2
     len_ = len(indexes)
     for j in range(len_):
@@ -106,15 +106,17 @@ def get_completions_with_changes(substring, num_to_search, best_k_completions):
     max_scores = sorted(res.values(), reverse=True)
     best_amount_completion = {}
 
-    for i in range(min(num_to_search, len(max_scores))):
+    min_ = min(num_to_search, len(max_scores))
+    for i in range(min_):
         for name, score in res.items():
             if score == max_scores[i]:
                 best_amount_completion[name] = score
-                break
+                res[name] = 0
     return best_amount_completion
 
 
 def get_best_k_completions(substring):
+    substring = substring.capitalize()
     best_k_completions = get_completions_without_changes(substring)
     len_ = len(best_k_completions.keys())
 
