@@ -5,3 +5,26 @@ class AutoCompleteData:
         self.offset = offset
         self.score = score
 
+    def get_completed_sentence(self):
+        return self.completed_sentence
+
+    def set_completed_sentence(self, sentence):
+        self.completed_sentence = sentence
+
+    def get_source_text(self):
+        return self.source_text
+
+    def set_source_text(self, source_text):
+        self.source_text = source_text
+
+    def get_offset(self):
+        return self.offset
+
+    def set_offset(self, offset):
+        self.offset = offset
+
+    def get_score(self):
+        return self.score
+
+    def set_score(self, score):
+        self.score = score

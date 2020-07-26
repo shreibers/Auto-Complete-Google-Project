@@ -1,67 +1,62 @@
 
-from auto_compliete_data import AutoCompleteData
 from init_data import Init
 
 
-AMOUNT_COMPLETIONS = 5
+k = 5
 
 init = Init()
 init.init_data()
 
 
 def replace_min_score(res, score, index):
-    min_score = min(res.values())
-    if min_score < score:
-        for key, value in res.items():
-            if value == min_score:
-                del res[key]
-                break
-        res[init.list_data[index]] = score
+    for item in res:
+        if item.get_score() < score:
+            res.remove(item)
+            res.append(init.list_data[index])
+
     return res
 
 
 def with_delete(substring, num_to_search, best_k_completions):
-    res = {}
+    res = []
     len_ = len(substring)
 
     for i in range(len_):
-        index_substring_for_search = init.data.get(substring[:i] + "" + substring[i+1:])
-
-        if index_substring_for_search:
-            for index in index_substring_for_search:
-                if init.list_data[index] not in best_k_completions.keys():
-                    score = (len_ - 1) * 2 - (10 - 2 * index) if i < 4 else (len_ - 1) * 2 - 2
-                    res[init.list_data[index]] = score
-
-                    if len(res.keys()) == num_to_search:
-                        replace_min_score(res, score, index)
-
+        indexes_of_sentences = init.data.get(substring[:i] + substring[i + 1:])
+        if indexes_of_sentences:
+            for index in indexes_of_sentences:
+                complete_list = [item.get_completed_sentence() for item in best_k_completions]
+                if init.list_data[index].get_completed_sentence() not in complete_list:
+                    score = ((len_ - 1) * 2 - (10 - 2 * i)) if i < 4 else ((len_ - 1) * 2 - 2)
+                    init.list_data[index].set_score(score)
+                    if len(res) == num_to_search:
+                        res = replace_min_score(res, index, score)
+                    else:
+                        res.append(init.list_data[index])
     return res
 
 
 def with_replace(substring, num_to_search, best_k_completions):
-    res = {}
+    res = []
     len_ = len(substring)
-
     for i in range(len_):
-        for char in range(ord('a'), ord('z') + 1):
-            index_substring_for_search = init.data.get(substring[:i] + chr(char) + substring[i+1:])
-
-            if index_substring_for_search:
-
-                for index in index_substring_for_search:
-                    if init.list_data[index] not in best_k_completions.keys():
-                        score = (len_ - 1) * 2 - (5 - index) if i < 4 else (len_ - 1) * 2 - 1
-                        res[init.list_data[index]] = score
-
-                        if len(res.keys()) == num_to_search:
-                            replace_min_score(res, score, index)
-
+        for letter in range(ord('a'), ord('z') + 1):
+            indexes_of_sentences = init.data.get(substring[:i] + chr(letter) + substring[i+1:])
+            if indexes_of_sentences:
+                for index in indexes_of_sentences:
+                    complete_list = [item.get_completed_sentence() for item in best_k_completions]
+                    if init.list_data[index].get_completed_sentence() not in complete_list:
+                        score = ((len_ - 1) * 2 - 5 - i) if i < 4 else ((len_ - 1) * 2 - 1)
+                        init.list_data[index].set_score(score)
+                        if len(res) == num_to_search:
+                            res = replace_min_score(res, index, score)
+                        else:
+                            res.append(init.list_data[index])
     return res
 
 
 def with_add(substring, num_to_search, best_k_completions):
-    res = {}
+    res = []
     len_ = len(substring)
 
     for i in range(len_+1):
@@ -70,73 +65,63 @@ def with_add(substring, num_to_search, best_k_completions):
 
             if index_substring_for_search:
                 for index in index_substring_for_search:
-                    score = (len_ - 1) * 2 - (5 - index) if i < 4 else (len_ - 1) * 2 - 1
-                    res[init.list_data[index]] = score
-                    if len(res.keys()) == num_to_search:
-                        replace_min_score(res, score, index)
+                    complete_list = [item.get_completed_sentence() for item in best_k_completions]
+                    if init.list_data[index].get_completed_sentence() not in complete_list:
 
-                    score = len_ * 2 - (10 - 2 * index) if i < 4 else (len_ - 1) * 2 - 2
-                    res[init.list_data[index]] = score
+                        score = len_ * 2 - (10 - 2 * i) if i < 4 else (len_ * 2 - 2)
+                        init.list_data[index].set_score(score)
 
-                    if len(res.keys()) == num_to_search:
-                        replace_min_score(res, score, index)
+                        if len(res) == num_to_search:
+                            res = replace_min_score(res, index, score)
+                        else:
+                            res.append(init.list_data[index])
 
     return res
 
 
 def get_completions_without_changes(substring):
-    best_k_completions = {}
-    indexes = []
-    max_score = 0
+    best_k_completions = []
     if init.data.get(substring):
-        indexes = list(init.data[substring])
-        max_score = len(substring)*2
-    len_ = len(indexes)
-    for j in range(len_):
-        best_k_completions[init.list_data[indexes[j]]] = max_score
+        sentences = init.data[substring]
+        max_score = len(substring) * 2
+        for index in sentences:
+            init.list_data[index].set_score(max_score)
+            best_k_completions.append(init.list_data[index])
 
-    return best_k_completions
+    return best_k_completions[:k]
 
 
 def get_completions_with_changes(substring, num_to_search, best_k_completions):
 
     res = with_replace(substring, num_to_search, best_k_completions)
-    res.update(with_add(substring, num_to_search, best_k_completions))
-    res.update(with_delete(substring, num_to_search, best_k_completions))
-    max_scores = sorted(res.values(), reverse=True)
-    best_amount_completion = {}
+    res += with_add(substring, num_to_search, best_k_completions)
+    res += with_delete(substring, num_to_search, best_k_completions)
+
+    max_scores = sorted(res, key=lambda a: (a.get_score(), a.get_completed_sentence()), reverse=True)
 
     min_ = min(num_to_search, len(max_scores))
-    for i in range(min_):
-        for name, score in res.items():
-            if score == max_scores[i]:
-                best_amount_completion[name] = score
-                res[name] = 0
-    return best_amount_completion
+    return max_scores[:min_]
 
 
 def get_best_k_completions(substring):
+
     substring = substring.capitalize()
     best_k_completions = get_completions_without_changes(substring)
-    len_ = len(best_k_completions.keys())
+    len_ = len(best_k_completions)
 
-    if len_ < AMOUNT_COMPLETIONS:
-        best_k_completions.update(get_completions_with_changes(substring, AMOUNT_COMPLETIONS - len_, best_k_completions))
+    if len_ < k:
+        best_k_completions += get_completions_with_changes(substring, k - len_, best_k_completions)
+    max_scores = sorted(best_k_completions, key=lambda a: (a.get_score(), a.get_completed_sentence()), reverse=True)
+    return max_scores
 
-    return sorted(best_k_completions.keys())
 
-
-suggestions = get_best_k_completions(input("The system is ready. Enter your text:\n"))
+x = input("The system is ready. Enter your text:\n")
+suggestions = get_best_k_completions(x)
 len_suggestions = len(suggestions)
 
 print(f"Here are {len_suggestions} suggestions")
 
 for i in range(len_suggestions):
-    print(f'{i+1}. {suggestions[i]}')
-
-
-
-
-
+    print(f'{i+1}. {suggestions[i].get_completed_sentence()}')
 
 
