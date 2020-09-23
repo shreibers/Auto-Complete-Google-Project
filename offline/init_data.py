@@ -1,6 +1,6 @@
 import glob
 
-from offline.auto_compliete_data import AutoCompleteData
+from offline.auto_complete_data import AutoCompleteData
 k = 5
 
 
