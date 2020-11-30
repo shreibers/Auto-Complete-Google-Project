@@ -1,6 +1,6 @@
 
 
-# Auto-Complete-Google-Project 11-12.12.2020 (As part of Adva bootcamp)
+# Auto-Complete-Google-Project 21-22.07.2020 (As part of Adva bootcamp)
 
 The project returns the best completion options for a given prefix of sentence:
 The user starts typing the sentence he's in search for, the program receives the partial sentence that was typed and returns 5 of the best options for completion. In order for the completion options to appear quickly we work in two phases: offline and online.
